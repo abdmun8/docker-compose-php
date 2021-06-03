@@ -1,0 +1,38 @@
+version: "3.7"
+services:
+  app:
+    build:
+      args:
+        user: user
+        uid: 1000
+      context: ./
+      dockerfile: PHP.Dockerfile
+    image: php-local-dev
+    container_name: php-local-dev-app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    ports:
+      - "80:80"
+    volumes:
+      - ./www:/var/www/html
+      - ./docker-compose/apache/000-default.conf:/etc/apache2/sites-available/000-default.conf
+
+    networks:
+      - php-local-dev
+
+  db:
+    image: mysql:5.7
+    container_name: php-local-dev-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./docker-compose/mysql:/var/lib/mysql
+    networks:
+      - php-local-dev
+
+networks:
+  php-local-dev:
+    driver: bridge
